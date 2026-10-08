@@ -178,13 +178,39 @@
   <section id="explainer" class="order-last lg:col-span-12 bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-xl">
     <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-3 mb-3">Explainer</h2>
     <div class="text-sm text-slate-300 leading-relaxed space-y-3">
-      Write your explanation here. Use <span class="m">Y<sub>t</sub></span> for math-style symbols.
-      <p class="text-slate-500 italic">Explanation to be added.</p>
+      <p class="text-slate-500 italic"> To see the development of the detailed theory behind MA(1) processes, click <a href="notesQuant.html#table-TSA" style="color: rgb(64, 64, 195);">"Time Series Analysis for Quantitative Finance"</a> and explore Chapter 1. To see the codes behind this window, click the "/." button at <a href="https://kalaapks.github.io/animations.html#anim-MA1" style="color: rgb(64, 64, 195);">"MA(1) Interactive window"</a>.</p>
       <p></p>
-      For <span class="m">|θ|<1 </span> we have the AR(∞) representation for MA(1).
+      Behaviour when <span class="m">θ</span> is close to 1 vs when it is cose to -1.
+      <p class="text-slate-500 italic"> To see the difference first switch on the Successive Trajectory Vectors; may be increase the noise and sample size too so that trajectories are clearly visible. <br> You will see that when <span class="m">θ</span> is close to 1, the successive realizations are in the adjacent quadrant (that is tendancy to stay close) whereas when <span class="m">θ</span> is close to -1, we see the tendancy to take values in opposite quadrant (the tendancy to take similar values but with a negative sign). <br>This behaviour is also seen in AR(1) processes. The difference comes down to the limiting behaviour of the sample points.
+      </p>
+      <p></p>
+      Limiting behaviour for AR(1). 
+      <p class="text-slate-500 italic"> The formulae for variance tells us that as <span class="m">θ</span> goes to 1 or -1, we the samples tend to spread by <span class="m">σ/√2</span> amount. This is finite as opposed to what we see in AR(1) processes.<br> The Covariance ellipse gets aligned with the sp(1,1) because of the fact that Covariance matrices are symmetric matrices and hence has eigen vectors (1,1) & (-1,1) which serves as the major and minor axes for the ellipse depending on the value of <span class="m">θ</span>. In particular, since this is due to the property of symmetric matrices, this alignment is supposed to show up in AR(1) processes too.</p>
+      <p></p>
+      We have the result that for <span class="m">|θ| < 1 </span>, there exists AR(∞) representation for MA(1).
       <p class="text-slate-500 italic"> What does this mean? If we look at one of these plots where <span class="m">|θ|<1 </span>, then this is supposed to look like AR(∞) process? We have seen AR(1) and AR(2). How do they geometrically connect to MA(1)? The answer comes down to the fact that we are only looking at <span class="m">Y<sub>t</sub></span> and <span class="m">Y<sub>t-1</sub></span> whereas we need to look at all of the past to get the actual picture of AR(∞).</p>
+      <p></p>
     </div>
   </section>
+  <section id="explainer" class="order-last lg:col-span-12 bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-xl">
+   <div class="text-sm text-slate-300 leading-relaxed">
+    <div class="flex items-center justify-center gap-3">
+      <span class="text-base font-semibold text-slate-100 tracking-wide">Contact:</span>
+        <a href="mailto:kalaap.ks@gmail.com" aria-label="Email" class="text-slate-400 hover:text-white transition-colors duration-200 inline-flex items-center">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+          </svg>
+        </a>
+        <a href="https://github.com/kalaapks" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="text-slate-400 hover:text-white transition-colors duration-200 inline-flex items-center" >
+          <svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
+          </svg>
+        </a>
+    </div>
+   </div>
+  </section>
+  
 </main>
 
 <script>
