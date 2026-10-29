@@ -4,42 +4,54 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AR(2) Phase Space Visualization</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>tailwind.config={theme:{extend:{colors:{slate:{50:'#f1f5f2',100:'#e7ece8',200:'#d3dbd5',300:'#b4c0b8',400:'#8a978f',500:'#67756c',600:'#46544b',700:'#2c3830',800:'#222c26',900:'#151c18',950:'#0c110e'}}}}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
 <style>
-  :root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-  body{font-family:'Inter',system-ui,sans-serif;background:#020617}
+  :root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--acc:#34b34a;--acc-soft:#7fd48c;--ell:#a8e6b2;--hot:#ff6b57;--data:rgb(200,208,203)}
+  html{scroll-padding-top:env(safe-area-inset-top,0px)}
+  body{font-family:'Inter',system-ui,sans-serif;background:#0c110e}
   .font-mono{font-family:'JetBrains Mono',monospace}
   /* math-mode look */
   .m{font-family:'STIX Two Text','Times New Roman',serif;font-style:italic;font-size:1.08em}
   .m sub,sub.m{font-size:.72em;line-height:0;font-style:italic}
   .mr{font-family:'STIX Two Text','Times New Roman',serif;font-style:normal}
-  input[type=range]{accent-color:#3b82f6}
-  .g{color:#34b34a}
-
-  .mode-btn{padding:.3rem .7rem;font-size:.72rem;border-radius:.5rem;border:1px solid #334155;background:#1e293b;color:#cbd5e1;transition:.15s;font-weight:600}
-  .mode-btn:hover{background:#334155}
-  .mode-btn.on{border-color:#2563eb;background:rgba(30,58,138,.5);color:#bfdbfe}
+  /* colour roles: green = theory/brand, --data = sample (warm if lag-1 persistence>0, cool if <0), coral = latest/warning */
+  input[type=range],input[type=checkbox]{accent-color:var(--acc)}
+  #phi1Slider,#phi2Slider{accent-color:var(--data)}
+  .c-data{color:var(--data)} .c-acc{color:var(--acc-soft)} .g{color:var(--acc)}
+  .mode-btn{padding:.3rem .7rem;font-size:.72rem;border-radius:.5rem;border:1px solid #2c3830;background:#151c18;color:#b4c0b8;transition:.15s;font-weight:600}
+  .mode-btn:hover{background:#222c26}
+  .mode-btn.on{border-color:var(--acc);background:rgba(52,179,74,.14);color:#a8e6b2}
+  .range-btn{border-color:#2c3830;background:#151c18;color:#b4c0b8}
+  .range-btn:hover{background:#222c26}
+  .range-btn.on{border-color:var(--acc);background:rgba(52,179,74,.14);color:#a8e6b2;font-weight:700}
+  .badge-ok{color:#7fd48c;background:rgba(52,179,74,.1);border:1px solid rgba(52,179,74,.35)}
+  .badge-warn{color:#ff9a8b;background:rgba(255,107,87,.1);border:1px solid rgba(255,107,87,.35)}
+  .badge-bad{color:#0c110e;background:#ff6b57;border:1px solid #ff6b57}
+  .lg i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+  a.lnk{color:var(--acc-soft);text-decoration:underline;text-underline-offset:3px}
+  a.lnk:hover{color:#fff}
 </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+<body class="text-slate-100 min-h-screen flex flex-col antialiased selection:bg-[#34b34a] selection:text-white">
 
 <header class="border-b border-slate-800 bg-slate-900/70 backdrop-blur px-4 md:px-6 py-4 flex flex-wrap items-center justify-between gap-4">
   <div class="flex items-center gap-3">
     <a href="https://kalaapks.github.io/" target="_blank" rel="noopener" title="Go to kalaapks.github.io" aria-label="Go to kalaapks.github.io" class="shrink-0 transition-transform hover:scale-105 active:scale-95">
       <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
-        <rect x="1.5" y="1.5" width="35" height="35" rx="8" fill="#0b1220" stroke="#34b34a" stroke-width="3"/>
+        <rect x="1.5" y="1.5" width="35" height="35" rx="8" fill="#0c110e" stroke="#34b34a" stroke-width="3"/>
         <text x="19" y="25" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-weight="700" font-size="16" fill="#34b34a">KS</text>
       </svg>
     </a>
     <div>
       <h1 class="text-base md:text-lg font-bold tracking-tight text-white flex flex-wrap items-center gap-2">
         AR(2) Phase Space Visualization
-        <span class="text-xs px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800"><span class="m">Y<sub>t</sub></span> = <span class="m">φ<sub>1</sub> Y<sub>t−1</sub></span> + <span class="m">φ<sub>2</sub> Y<sub>t−2</sub></span> + <span class="m">ϵ<sub>t</sub></span></span>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-[#34b34a]/10 text-[#9be3a6] border border-[#34b34a]/30"><span class="m">Y<sub>t</sub></span> = <span class="m">φ<sub>1</sub> Y<sub>t−1</sub></span> + <span class="m">φ<sub>2</sub> Y<sub>t−2</sub></span> + <span class="m">ϵ<sub>t</sub></span></span>
       </h1>
-      <p class="text-xs text-slate-400">Rotatable 3D space showing the relationship between presistance coefficient, Covariance ellipsoid and the regression hyperplane</p>
+      <p class="text-xs text-slate-400">Rotatable 3D space showing the relationship between persistence coefficient, Covariance ellipsoid and the regression hyperplane</p>
     </div>
   </div>
   <button id="btnResample" class="px-3.5 py-1.5 rounded-lg bg-[#34b34a] hover:bg-[#3fc556] text-xs font-semibold text-slate-950 transition-all shadow-md active:scale-95 flex items-center gap-1.5">
@@ -52,13 +64,13 @@
 
   <section class="contents lg:flex lg:flex-col lg:col-span-4 lg:gap-5">
 
-    <div class="order-1 bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-xl flex flex-col gap-4">
-      <div class="border-b border-slate-800 pb-3"><h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">Model Parameters</h2></div>
+    <div class="order-1 bg-slate-900/90 border border-slate-800 rounded-lg p-5 flex flex-col gap-4">
+      <div class="border-b border-slate-800 pb-3"><h2 class="text-sm font-semibold tracking-wide text-slate-300">Model Parameters</h2></div>
 
       <div class="space-y-1.5">
         <div class="flex justify-between items-center text-sm">
-          <label for="phi1Slider" class="font-medium text-slate-300">Persistence Parameter (<span class="m text-blue-400 font-bold">φ<sub>1</sub></span>)</label>
-          <span id="phi1Val" class="font-mono font-bold text-sm bg-blue-950/70 border border-blue-800/80 text-blue-300 px-2 py-0.5 rounded">0.50</span>
+          <label for="phi1Slider" class="font-medium text-slate-300">Persistence Parameter (<span class="m c-data font-bold">φ<sub>1</sub></span>)</label>
+          <span id="phi1Val" class="font-mono font-bold text-sm bg-white/5 border border-white/10 c-data px-2 py-0.5 rounded">0.50</span>
         </div>
         <input id="phi1Slider" type="range" min="-1.99" max="1.99" step="0.01" value="0.50" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer">
         <div class="flex justify-between text-[10px] text-slate-500 font-mono px-0.5"><span>-1.99</span><span>0.0</span><span>+1.99</span></div>
@@ -66,8 +78,8 @@
 
       <div class="space-y-1.5">
         <div class="flex justify-between items-center text-sm">
-          <label for="phi2Slider" class="font-medium text-slate-300">Second-Lag Parameter (<span class="m text-blue-400 font-bold">φ<sub>2</sub></span>)</label>
-          <span id="phi2Val" class="font-mono font-bold text-sm bg-blue-950/70 border border-blue-800/80 text-blue-300 px-2 py-0.5 rounded">0.30</span>
+          <label for="phi2Slider" class="font-medium text-slate-300">Second-Lag Parameter (<span class="m c-data font-bold">φ<sub>2</sub></span>)</label>
+          <span id="phi2Val" class="font-mono font-bold text-sm bg-white/5 border border-white/10 c-data px-2 py-0.5 rounded">0.30</span>
         </div>
         <input id="phi2Slider" type="range" min="-0.99" max="0.99" step="0.01" value="0.30" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer">
         <div class="flex justify-between text-[10px] text-slate-500 font-mono px-0.5"><span>-0.99</span><span>0.0</span><span>+0.99</span></div>
@@ -81,38 +93,38 @@
       <div id="morePanel" class="hidden flex-col gap-4">
         <div class="space-y-1.5 pt-1">
           <div class="flex justify-between items-center text-sm">
-            <label for="nSlider" class="font-medium text-slate-300">Sample Size (<span class="m text-emerald-400 font-bold">N</span>)</label>
-            <span id="nVal" class="font-mono font-bold text-sm bg-emerald-950/70 border border-emerald-800/80 text-emerald-300 px-2 py-0.5 rounded">1000</span>
+            <label for="nSlider" class="font-medium text-slate-300">Sample Size (<span class="m text-slate-200 font-bold">N</span>)</label>
+            <span id="nVal" class="font-mono font-bold text-sm bg-white/5 border border-white/10 text-slate-200 px-2 py-0.5 rounded">1000</span>
           </div>
-          <input id="nSlider" type="range" min="100" max="5000" step="50" value="1000" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer accent-emerald-500">
+          <input id="nSlider" type="range" min="100" max="5000" step="50" value="1000" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer">
           <div class="flex justify-between text-[10px] text-slate-500 font-mono px-0.5"><span>100 pts</span><span>2500 pts</span><span>5000 pts</span></div>
         </div>
         <div class="space-y-1.5 pt-1">
           <div class="flex justify-between items-center text-sm">
-            <label for="sigmaSlider" class="font-medium text-slate-300">Noise Std Dev (<span class="m text-purple-400 font-bold">σ<sub>ϵ</sub></span>)</label>
-            <span id="sigmaVal" class="font-mono font-bold text-sm bg-purple-950/70 border border-purple-800/80 text-purple-300 px-2 py-0.5 rounded">1.00</span>
+            <label for="sigmaSlider" class="font-medium text-slate-300">Noise Std Dev (<span class="m text-slate-200 font-bold">σ<sub>ϵ</sub></span>)</label>
+            <span id="sigmaVal" class="font-mono font-bold text-sm bg-white/5 border border-white/10 text-slate-200 px-2 py-0.5 rounded">1.00</span>
           </div>
-          <input id="sigmaSlider" type="range" min="0.2" max="2.5" step="0.05" value="1.00" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer accent-purple-500">
+          <input id="sigmaSlider" type="range" min="0.2" max="2.5" step="0.05" value="1.00" class="w-full h-2 bg-slate-800 rounded-lg cursor-pointer">
           <div class="flex justify-between text-[10px] text-slate-500 font-mono px-0.5"><span>0.20</span><span>1.00</span><span>2.50</span></div>
         </div>
       </div>
     </div>
 
-    <div class="order-4 bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-xl flex flex-col gap-4">
-      <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-3">Fixed Display &amp; Overlays</h2>
+    <div class="order-4 bg-slate-900/90 border border-slate-800 rounded-lg p-5 flex flex-col gap-4">
+      <h2 class="text-sm font-semibold tracking-wide text-slate-300 border-b border-slate-800 pb-3">Fixed Display &amp; Overlays</h2>
       <div>
         <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wide">Phase Axis Range (Fixed ±L)</label>
         <div class="grid grid-cols-4 gap-2">
-          <button class="range-btn py-1.5 text-xs rounded border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 font-mono transition" data-range="6">±6</button>
-          <button class="range-btn py-1.5 text-xs rounded border border-blue-600 bg-blue-900/50 text-blue-200 font-mono font-bold transition" data-range="10">±10</button>
-          <button class="range-btn py-1.5 text-xs rounded border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 font-mono transition" data-range="15">±15</button>
-          <button class="range-btn py-1.5 text-xs rounded border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 font-mono transition" data-range="25">±25</button>
+          <button class="range-btn py-1.5 text-xs rounded border font-mono transition" data-range="6">±6</button>
+          <button class="range-btn on py-1.5 text-xs rounded border font-mono transition" data-range="10">±10</button>
+          <button class="range-btn py-1.5 text-xs rounded border font-mono transition" data-range="15">±15</button>
+          <button class="range-btn py-1.5 text-xs rounded border font-mono transition" data-range="25">±25</button>
         </div>
         <p class="text-[11px] text-slate-500 mt-2 leading-tight">Axes remain fixed while adjusting <span class="m">φ<sub>1</sub></span> and <span class="m">φ<sub>2</sub></span> to observe variance elongation and boundary explosions.</p>
       </div>
       <div class="space-y-2.5 pt-2 border-t border-slate-800">
         <label class="flex items-center gap-2.5 text-xs font-medium text-slate-300 cursor-pointer select-none">
-          <input id="chkEllipses" type="checkbox" checked class="w-4 h-4 rounded bg-slate-800 border-slate-700 text-blue-600 focus:ring-0">
+          <input id="chkEllipses" type="checkbox" checked class="w-4 h-4 rounded bg-slate-800 border-slate-700 focus:ring-0">
           <span>Theoretical 1σ Covariance Ellipsoid</span>
         </label>
         <label class="flex items-center gap-2.5 text-xs font-medium text-slate-300 cursor-pointer select-none">
@@ -126,37 +138,37 @@
       </div>
     </div>
 
-    <div class="order-5 bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-xl flex flex-col gap-3">
-      <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-2">Statistical Comparison</h2>
+    <div class="order-5 bg-slate-900/90 border border-slate-800 rounded-lg p-5 flex flex-col gap-3">
+      <h2 class="text-sm font-semibold tracking-wide text-slate-300 border-b border-slate-800 pb-2">Statistical Comparison</h2>
       <div class="grid grid-cols-2 gap-3 text-xs font-mono">
         <div class="bg-slate-950/60 p-2.5 rounded border border-slate-800/80">
           <div class="text-slate-400 text-[10px] uppercase font-sans font-medium">Theoretical Var(<span class="m normal-case">Y</span>)</div>
-          <div id="statTheoVar" class="text-base font-bold text-cyan-400 mt-0.5">-</div>
+          <div id="statTheoVar" class="text-base font-bold c-acc mt-0.5">-</div>
           <div class="text-[10px] text-slate-500 mt-0.5"><span class="m">γ<sub>0</sub></span> (Yule–Walker)</div>
         </div>
         <div class="bg-slate-950/60 p-2.5 rounded border border-slate-800/80">
           <div class="text-slate-400 text-[10px] uppercase font-sans font-medium">Sample Var(<span class="m normal-case">Y</span>)</div>
-          <div id="statEmpVar" class="text-base font-bold text-emerald-400 mt-0.5">-</div>
+          <div id="statEmpVar" class="text-base font-bold c-data mt-0.5">-</div>
           <div class="text-[10px] text-slate-500 mt-0.5"><span class="m">s²</span> = Σ(<span class="m">y</span> − <span class="m">ȳ</span>)²/<span class="m">N</span></div>
         </div>
         <div class="bg-slate-950/60 p-2.5 rounded border border-slate-800/80">
           <div class="text-slate-400 text-[10px] uppercase font-sans font-medium">Theoretical <span class="m normal-case">ρ<sub>1</sub></span></div>
-          <div id="statTheoRho1" class="text-base font-bold text-amber-400 mt-0.5">-</div>
+          <div id="statTheoRho1" class="text-base font-bold c-acc mt-0.5">-</div>
           <div class="text-[10px] text-slate-500 mt-0.5"><span class="m">φ<sub>1</sub></span> / (1 − <span class="m">φ<sub>2</sub></span>)</div>
         </div>
         <div class="bg-slate-950/60 p-2.5 rounded border border-slate-800/80">
           <div class="text-slate-400 text-[10px] uppercase font-sans font-medium">Sample <span class="m normal-case">r<sub>1</sub></span></div>
-          <div id="statEmpRho1" class="text-base font-bold text-lime-400 mt-0.5">-</div>
+          <div id="statEmpRho1" class="text-base font-bold c-data mt-0.5">-</div>
           <div class="text-[10px] text-slate-500 mt-0.5">Corr(<span class="m">Y<sub>t</sub></span>, <span class="m">Y<sub>t−1</sub></span>)</div>
         </div>
         <div class="bg-slate-950/60 p-2.5 rounded border border-slate-800/80">
           <div class="text-slate-400 text-[10px] uppercase font-sans font-medium">Theoretical <span class="m normal-case">ρ<sub>2</sub></span></div>
-          <div id="statTheoRho2" class="text-base font-bold text-amber-400 mt-0.5">-</div>
+          <div id="statTheoRho2" class="text-base font-bold c-acc mt-0.5">-</div>
           <div class="text-[10px] text-slate-500 mt-0.5"><span class="m">φ<sub>1</sub>ρ<sub>1</sub></span> + <span class="m">φ<sub>2</sub></span></div>
         </div>
         <div class="bg-slate-950/60 p-2.5 rounded border border-slate-800/80">
           <div class="text-slate-400 text-[10px] uppercase font-sans font-medium">Sample <span class="m normal-case">r<sub>2</sub></span></div>
-          <div id="statEmpRho2" class="text-base font-bold text-lime-400 mt-0.5">-</div>
+          <div id="statEmpRho2" class="text-base font-bold c-data mt-0.5">-</div>
           <div class="text-[10px] text-slate-500 mt-0.5">Corr(<span class="m">Y<sub>t</sub></span>, <span class="m">Y<sub>t−2</sub></span>)</div>
         </div>
       </div>
@@ -165,15 +177,16 @@
 
   <section class="contents lg:flex lg:flex-col lg:col-span-8 lg:gap-4">
 
-    <div class="order-2 bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl flex flex-col">
+    <div class="order-2 bg-slate-900 border border-slate-800 rounded-lg p-4 flex flex-col">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-3 px-1">
         <div class="flex items-center gap-2">
-          <div class="w-2.5 h-2.5 rounded-full bg-[#34b34a]"></div>
+          <div class="w-2.5 h-2.5 rounded-full" style="background:var(--data)"></div>
           <span class="text-sm font-semibold text-slate-200">3D Phase Space Plot</span>
           <span class="text-xs text-slate-400">(<span class="m">Y<sub>t−2</sub></span>, <span class="m">Y<sub>t−1</sub></span>, <span class="m">Y<sub>t</sub></span>)</span>
         </div>
-        <div id="boundaryBadge" class="text-[11px] px-2.5 py-0.5 rounded font-mono font-semibold text-emerald-400 bg-emerald-950/50 border border-emerald-800/60">STATIONARY</div>
+        <div id="boundaryBadge" class="text-[11px] px-2.5 py-0.5 rounded font-mono font-semibold badge-ok">STATIONARY</div>
       </div>
+      <div class="lg flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-400 mb-2 px-1"><span><i style="background:var(--data)"></i>Sample points</span><span><i style="background:var(--ell)"></i>Covariance ellipsoid</span><span><i style="background:var(--acc)"></i>Regression hyperplane</span><span><i style="background:var(--hot)"></i>Latest point</span><span class="text-slate-500">Warm = positive lag-1 persistence · Cool = negative</span></div>
       <div class="flex flex-wrap items-center gap-2 mb-3 px-1">
         <span class="text-[11px] uppercase tracking-wide text-slate-500 font-semibold mr-1">View</span>
         <button id="btnV1" class="mode-btn"><span class="m">Y<sub>t</sub></span> vs <span class="m">Y<sub>t−1</sub></span></button>
@@ -186,10 +199,10 @@
       </div>
     </div>
 
-    <div class="order-3 bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl flex flex-col">
+    <div class="order-3 bg-slate-900 border border-slate-800 rounded-lg p-4 flex flex-col">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-2 px-1">
         <div class="flex items-center gap-2">
-          <div class="w-2.5 h-2.5 rounded-full bg-[#34b34a]"></div>
+          <div class="w-2.5 h-2.5 rounded-full" style="background:var(--data)"></div>
           <span class="text-sm font-semibold text-slate-200">Companion Time Series</span>
           <span class="text-xs text-slate-400"><span class="m">(Y<sub>t</sub></span> vs <span class="m">t)</span></span>
         </div>
@@ -199,16 +212,51 @@
     </div>
   </section>
 
-  <section id="explainer" class="order-last lg:col-span-12 bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-xl">
-    <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-3 mb-3">Explainer</h2>
-    <div class="text-sm text-slate-300 leading-relaxed space-y-3">
-      <!-- Write your explanation here. Use <span class="m">Y<sub>t</sub></span> for math-style symbols. -->
-      <p class="text-slate-500 italic">Explanation to be added.</p>
+  <section id="explainer" class="order-last lg:col-span-12 bg-slate-900/90 border border-slate-800 rounded-lg p-5">
+    <h2 class="text-sm font-semibold tracking-wide text-slate-200 border-b border-slate-800 pb-3 mb-3">Explainer</h2>
+    <div class="text-sm text-slate-300 leading-relaxed space-y-4">
+      <p class="text-slate-400"> This is based on the python library <a class="lnk" href="https://github.com/kalaapks/lagshape">lagshape</a>. For the detailed theory behind AR(2) processes, see <a class="lnk" href="https://kalaapks.github.io/notesQuant.html#table-TSA">"Time Series Analysis for Quantitative Finance"</a>. For the code behind this window, click the "/." button at <a class="lnk" href="https://kalaapks.github.io/animations.html#anim-AR2">"AR(2) Interactive window"</a>.</p>
+      <div><h3 class="font-semibold text-slate-100 mb-1">Reading the 3D picture</h3>
+        <p class="text-slate-400">Each dot is a triple (<span class="m">Y<sub>t−2</sub></span>, <span class="m">Y<sub>t−1</sub></span>, <span class="m">Y<sub>t</sub></span>). The model says <span class="m">Y<sub>t</sub></span> = <span class="m">φ<sub>1</sub></span><span class="m">Y<sub>t−1</sub></span> + <span class="m">φ<sub>2</sub></span><span class="m">Y<sub>t−2</sub></span> + noise, so the dots form a thin slab around the green hyperplane, and the thickness of the slab is the noise level. The two slopes of the plane are the two coefficients: <span class="m">φ<sub>1</sub></span> tilts it along the <span class="m">Y<sub>t−1</sub></span> axis and <span class="m">φ<sub>2</sub></span> along the <span class="m">Y<sub>t−2</sub></span> axis. Drag to rotate, and use the two View buttons to turn the cube until one lag faces you; this gives the exact 2D shadow of the cloud.</p>
+      </div>
+      <div><h3 class="font-semibold text-slate-100 mb-1">Why the 2D views show <span class="m">ρ<sub>1</sub></span> and not <span class="m">φ<sub>1</sub></span></h3>
+        <p class="text-slate-400">In the <span class="m">Y<sub>t</sub></span> vs <span class="m">Y<sub>t−1</sub></span> view, the cloud is not centred on a line of slope <span class="m">φ<sub>1</sub></span>. It follows a line of slope <span class="m">ρ<sub>1</sub></span> = <span class="m">φ<sub>1</sub></span> / (1 − <span class="m">φ<sub>2</sub></span>). The reason is that <span class="m">Y<sub>t−2</sub></span> is correlated with <span class="m">Y<sub>t−1</sub></span>, so when you ignore it, part of its effect gets absorbed into the slope you see. A positive <span class="m">φ<sub>2</sub></span> makes the cloud look more persistent than <span class="m">φ<sub>1</sub></span> alone suggests, and a negative <span class="m">φ<sub>2</sub></span> makes it look less persistent. The coloured dots follow this lag-1 persistence: warm when it is positive and cool when it is negative.</p>
+      </div>
+      <div><h3 class="font-semibold text-slate-100 mb-1">Stationarity, unit roots and cycles</h3>
+        <p class="text-slate-400">The process is stationary only inside the triangle <span class="m">φ<sub>1</sub></span> + <span class="m">φ<sub>2</sub></span> &lt; 1, <span class="m">φ<sub>2</sub></span> − <span class="m">φ<sub>1</sub></span> &lt; 1, |<span class="m">φ<sub>2</sub></span>| &lt; 1; the badge tells you where you are. Leaving through the first edge means a unit root at +1 (slow wandering), and leaving through the second means a unit root at −1 (rapid flipping of sign). Outside the triangle the variance is infinite, the theoretical statistics switch off, and the cloud escapes the fixed axes.<br>Something new appears in AR(2) that AR(1) cannot do: when <span class="m">φ<sub>1</sub></span><sup>2</sup> + 4<span class="m">φ<sub>2</sub></span> &lt; 0 the roots are complex and the series shows pseudo-cycles of period 2π/θ, where cos θ = <span class="m">φ<sub>1</sub></span> / (2√(−<span class="m">φ<sub>2</sub></span>)). Try <span class="m">φ<sub>1</sub></span> = 1.0 and <span class="m">φ<sub>2</sub></span> = −0.5, which gives a period of about 8 steps. Switch on Successive Trajectory Vectors in a 2D view and you will see the points circulate instead of just scattering.</p>
+      </div>
+      <div><h3 class="font-semibold text-slate-100 mb-1">Limiting behaviour for AR(2)</h3>
+        <p class="text-slate-400">The covariance matrix of (<span class="m">Y<sub>t−2</sub></span>, <span class="m">Y<sub>t−1</sub></span>, <span class="m">Y<sub>t</sub></span>) is symmetric and has equal entries along its diagonals, so one axis of the ellipsoid is always the direction (1, 0, −1), whatever the coefficients are. The other two axes rotate inside the plane spanned by (1, 0, 1) and (0, 1, 0).<br>As you approach the edge <span class="m">φ<sub>1</sub></span> + <span class="m">φ<sub>2</sub></span> = 1, the ellipsoid stretches into a needle along (1, 1, 1): the three values are almost equal, and the cloud slides along the hyperplane, which contains that line exactly when <span class="m">φ<sub>1</sub></span> + <span class="m">φ<sub>2</sub></span> = 1. At the edge <span class="m">φ<sub>2</sub></span> − <span class="m">φ<sub>1</sub></span> = 1 the same stretching happens along (1, −1, 1), the alternating direction. As in AR(1), this alignment comes from the symmetry of the covariance matrix, so it also shows up in MA(2) processes.</p>
+      </div>
     </div>
+  </section>
+  <section id="contact" class="order-last lg:col-span-12 bg-slate-900/90 border border-slate-800 rounded-lg p-5">
+   <div class="text-sm text-slate-300 leading-relaxed">
+    <div class="flex items-center justify-center gap-3">
+      <span class="text-base font-semibold text-slate-100 tracking-wide">Contact:</span>
+        <a href="mailto:kalaap.ks@gmail.com" aria-label="Email" class="text-slate-400 hover:text-white transition-colors duration-200 inline-flex items-center">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+          </svg>
+        </a>
+        <a href="https://github.com/kalaapks" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="text-slate-400 hover:text-white transition-colors duration-200 inline-flex items-center" >
+          <svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
+          </svg>
+        </a>
+    </div>
+   </div>
   </section>
 </main>
 
 <script>
+let DC='200,208,203';
+function setDataColor(){
+  const {p1,p2}=state, p=Math.max(-1,Math.min(1,p1/(1-p2))), a=Math.min(1,Math.abs(p)/0.6), n=[200,208,203], t=p>=0?[240,165,58]:[106,168,255];
+  DC=n.map((v,i)=>Math.round(v+(t[i]-v)*a)).join(',');
+  document.documentElement.style.setProperty('--data','rgb('+DC+')');
+}
 const $ = id => document.getElementById(id);
 const state = {p1:0.5, p2:0.3, N:1000, sigma:1, L:10, ellipsoid:true, plane:true, traj:false, burn:300, e:[], y:[], yaw:0.75, pitch:0.45, mode:null};
 const saved3D = {yaw:0.75, pitch:0.45};
@@ -228,7 +276,7 @@ const clampV=v=>Math.max(-1e6,Math.min(1e6,v));
 function computeSeries(){
   const{p1,p2,sigma,burn,N,e}=state; let a=0,b=0; const y=new Float32Array(N);
   for(let i=0;i<burn+N;i++){const c=clampV(p1*a+p2*b+sigma*e[i]); b=a; a=c; if(i>=burn)y[i-burn]=c;}
-  state.y=y; metrics(); draw();
+  state.y=y; setDataColor(); metrics(); draw();
 }
 function theory(){
   const{p1,p2,sigma}=state; if(!isStat()) return null;
@@ -247,9 +295,9 @@ function metrics(){
   $('statEmpRho2').textContent=v>0?(c2/(n-2)/v).toFixed(3):'0';
   const{p1,p2}=state, margin=Math.min(1-p1-p2,1+p1-p2,1-Math.abs(p2));
   const base='text-[11px] px-2.5 py-0.5 rounded font-mono font-semibold ';
-  if(margin<=0){badge.textContent='NON-STATIONARY (unit root outside)';badge.className=base+'text-rose-400 bg-rose-950/50 border border-rose-800/60';}
-  else if(margin<0.05){badge.textContent='NEAR-UNIT ROOT';badge.className=base+'text-amber-400 bg-amber-950/50 border border-amber-800/60';}
-  else {badge.textContent='STATIONARY';badge.className=base+'text-emerald-400 bg-emerald-950/50 border border-emerald-800/60';}
+  if(margin<=0){badge.textContent='NON-STATIONARY (unit root outside)';badge.className=base+'badge-bad';}
+  else if(margin<0.05){badge.textContent='NEAR-UNIT ROOT';badge.className=base+'badge-warn';}
+  else {badge.textContent='STATIONARY';badge.className=base+'badge-ok';}
 }
 function resize(){
   const d=window.devicePixelRatio||1;
@@ -275,7 +323,7 @@ function drawPhase(){
   const line=(p,q)=>{const A=P(...p),B=P(...q);pc.moveTo(A[0],A[1]);pc.lineTo(B[0],B[1]);};
   const step=L<=10?2:5;
   // grids on the three coordinate planes
-  pc.strokeStyle='rgba(51,65,85,0.28)';pc.lineWidth=1;pc.beginPath();
+  pc.strokeStyle='rgba(130,160,140,0.10)';pc.lineWidth=1;pc.beginPath();
   for(let v=-L;v<=L;v+=step){
     line([v,-L,0],[v,L,0]);line([-L,v,0],[L,v,0]);      // XY plane (z=0)
     line([0,-L,v],[0,L,v]);line([0,v,-L],[0,v,L]);      // ZY plane (x=0)
@@ -283,17 +331,17 @@ function drawPhase(){
   }
   pc.stroke();
   // bounding frame
-  pc.strokeStyle='rgba(71,85,105,0.35)';pc.beginPath();
+  pc.strokeStyle='rgba(130,160,140,0.2)';pc.beginPath();
   for(const a of[-L,L])for(const b of[-L,L]){line([-L,a,b],[L,a,b]);line([a,-L,b],[a,L,b]);line([a,b,-L],[a,b,L]);}
   pc.stroke();
   // axes
-  pc.strokeStyle='#475569';pc.lineWidth=1.5;pc.beginPath();line([-L,0,0],[L,0,0]);line([0,-L,0],[0,L,0]);line([0,0,-L],[0,0,L]);pc.stroke();
-  pc.font='10px JetBrains Mono';pc.fillStyle='#64748b';pc.textAlign='left';
+  pc.strokeStyle='#3d4d44';pc.lineWidth=1.5;pc.beginPath();line([-L,0,0],[L,0,0]);line([0,-L,0],[0,L,0]);line([0,0,-L],[0,0,L]);pc.stroke();
+  pc.font='10px JetBrains Mono';pc.fillStyle='#6b7a71';pc.textAlign='left';
   for(let v=-L;v<=L;v+=step){if(!v)continue;
     let p=P(v,0,0);pc.fillText(v,p[0]+3,p[1]+12);p=P(0,v,0);pc.fillText(v,p[0]+4,p[1]-3);p=P(0,0,v);pc.fillText(v,p[0]+4,p[1]+12);}
-  let t=P(L,0,0);mathLabel(pc,'Y','t−1',t[0]-4,t[1]-8,'#94a3b8');
-  t=P(0,L,0);mathLabel(pc,'Y','t',t[0]+8,t[1]+12,'#94a3b8');
-  t=P(0,0,L);mathLabel(pc,'Y','t−2',t[0]+6,t[1]-8,'#94a3b8');
+  let t=P(L,0,0);mathLabel(pc,'Y','t−1',t[0]-4,t[1]-8,'#9aa89f');
+  t=P(0,L,0);mathLabel(pc,'Y','t',t[0]+8,t[1]+12,'#9aa89f');
+  t=P(0,0,L);mathLabel(pc,'Y','t−2',t[0]+6,t[1]-8,'#9aa89f');
 
   const th=theory();
   // ellipsoids (low alpha): silhouette fill + principal rings
@@ -311,7 +359,7 @@ function drawPhase(){
     const px=R[0],py=R[1]; let sxx=0,sxy=0,syy=0;
     eig.forEach(o=>{const a=px[0]*o.v[0]+px[1]*o.v[1]+px[2]*o.v[2],b=py[0]*o.v[0]+py[1]*o.v[1]+py[2]*o.v[2];sxx+=o.l*a*a;sxy+=o.l*a*b;syy+=o.l*b*b;});
     const mm=(sxx+syy)/2,dr=Math.hypot((sxx-syy)/2,sxy),ea=Math.sqrt(Math.max(mm+dr,0)),eb=Math.sqrt(Math.max(mm-dr,0)),th2=0.5*Math.atan2(2*sxy,sxx-syy);
-    [[1,'rgba(167,139,250,0.32)','rgba(196,181,253,0.70)']].forEach(([k,fill,stroke])=>{
+    [[1,'rgba(168,230,178,0.14)','rgba(168,230,178,0.8)']].forEach(([k,fill,stroke])=>{
       pc.save();pc.translate(cx,cy);pc.scale(s,-s);pc.rotate(th2);pc.beginPath();pc.ellipse(0,0,k*ea,k*eb,0,0,2*Math.PI);pc.restore();
       pc.fillStyle=fill;pc.fill();pc.strokeStyle=stroke;pc.lineWidth=1.2;pc.stroke();
       // principal-plane rings give the 3D shape
@@ -335,22 +383,22 @@ function drawPhase(){
     c.forEach((p,i)=>i?pc.lineTo(p[0],p[1]):pc.moveTo(p[0],p[1]));pc.closePath();pc.stroke();pc.restore();
   }
   const y=state.y,n=state.N;
-  if(state.traj){pc.save();pc.strokeStyle='rgba(148,163,184,0.2)';pc.lineWidth=0.8;pc.beginPath();
+  if(state.traj){pc.save();pc.strokeStyle=`rgba(${DC},0.22)`;pc.lineWidth=0.8;pc.beginPath();
     for(let i=2;i<Math.min(n,400);i++){const p=P(y[i-1],y[i],y[i-2]);i===2?pc.moveTo(p[0],p[1]):pc.lineTo(p[0],p[1]);}pc.stroke();pc.restore();}
   const alpha=Math.max(0.25,0.85-n/7000),r0=n>2500?1.4:2;
   for(let i=2;i<n;i++){
     const p=P(y[i-1],y[i],y[i-2]);
     if(p[0]<0||p[0]>w||p[1]<0||p[1]>h)continue;
     const dn=p[2]/(L*1.7);                       // depth cue: nearer points larger and brighter
-    pc.fillStyle=`rgba(56,189,248,${Math.min(1,alpha*(0.8+0.35*dn))})`;
+    pc.fillStyle=`rgba(${DC},${Math.min(1,alpha*(0.8+0.35*dn))})`;
     pc.beginPath();pc.arc(p[0],p[1],r0*(1+0.3*dn),0,6.2832);pc.fill();
   }
-  if(n>2){const p=P(y[n-2],y[n-1],y[n-3]);pc.beginPath();pc.arc(p[0],p[1],4,0,6.2832);pc.fillStyle='#f43f5e';pc.fill();pc.lineWidth=2;pc.strokeStyle='#fff';pc.stroke();}
+  if(n>2){const p=P(y[n-2],y[n-1],y[n-3]);pc.beginPath();pc.arc(p[0],p[1],4,0,6.2832);pc.fillStyle='#ff6b57';pc.fill();pc.lineWidth=2;pc.strokeStyle='#fff';pc.stroke();}
 }
 function drawTS(){
   const w=tsC.clientWidth,h=tsC.clientHeight,L=state.L,mid=h/2;
-  tc.clearRect(0,0,w,h);tc.strokeStyle='rgba(71,85,105,0.6)';tc.lineWidth=1;tc.beginPath();tc.moveTo(0,mid);tc.lineTo(w,mid);tc.stroke();
-  const pts=Math.min(state.N,350),dx=w/(pts-1);tc.strokeStyle='#38bdf8';tc.lineWidth=1.6;tc.beginPath();
+  tc.clearRect(0,0,w,h);tc.strokeStyle='rgba(130,160,140,0.25)';tc.lineWidth=1;tc.beginPath();tc.moveTo(0,mid);tc.lineTo(w,mid);tc.stroke();
+  const pts=Math.min(state.N,350),dx=w/(pts-1);tc.strokeStyle=`rgb(${DC})`;tc.lineWidth=1.6;tc.beginPath();
   for(let t=0;t<pts;t++){const yy=mid-(state.y[t]/L)*(h/2);t?tc.lineTo(t*dx,yy):tc.moveTo(0,yy);}tc.stroke();
 }
 function draw(){drawPhase();drawTS();}
@@ -405,8 +453,8 @@ $('chkEllipses').addEventListener('change',e=>{state.ellipsoid=e.target.checked;
 $('chkPlane').addEventListener('change',e=>{state.plane=e.target.checked;draw();});
 $('chkTrajectory').addEventListener('change',e=>{state.traj=e.target.checked;draw();});
 document.querySelectorAll('.range-btn').forEach(btn=>btn.addEventListener('click',e=>{
-  document.querySelectorAll('.range-btn').forEach(b=>b.className='range-btn py-1.5 text-xs rounded border border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 font-mono transition');
-  e.currentTarget.className='range-btn py-1.5 text-xs rounded border border-blue-600 bg-blue-900/50 text-blue-200 font-mono font-bold transition';
+  document.querySelectorAll('.range-btn').forEach(b=>b.className='range-btn py-1.5 text-xs rounded border font-mono transition');
+  e.currentTarget.className='range-btn on py-1.5 text-xs rounded border font-mono transition';
   state.L=parseFloat(e.currentTarget.dataset.range);draw();
 }));
 window.addEventListener('DOMContentLoaded',()=>{sampleInnovations();resize();});
