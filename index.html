@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Time Series</title>
+<style>
+  :root { --bg:#f5f7fa; --ink:#14213d; --muted:#6b7686; --line:#d5dbe4; --accent:#0f766e; --card:#ffffff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1520; --ink:#e6ebf2; --muted:#8c97a8; --line:#2a3445; --accent:#5eead4; --card:#161e2c; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font-family: Georgia, "Times New Roman", serif; line-height:1.6; }
+  main { max-width:640px; margin:0 auto; padding:56px 20px 80px; }
+  h1 { font-size:2.2rem; margin:0 0 6px; letter-spacing:-0.01em; }
+  .lead { color:var(--muted); margin:0 0 40px; }
+  h2 { font-size:1.2rem; margin:36px 0 12px; padding-bottom:6px; border-bottom:1px solid var(--line); }
+  ul { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  a.model { display:block; padding:14px 16px; background:var(--card); border:1px solid var(--line);
+            border-radius:6px; color:var(--ink); text-decoration:none; font-weight:bold; }
+  a.model span { display:block; font-weight:normal; font-size:.85rem; color:var(--muted); }
+  a.model:hover, a.model:focus-visible { border-color:var(--accent); outline:none; }
+  a.model:focus-visible { box-shadow:0 0 0 2px var(--accent); }
+  .soon { color:var(--muted); font-style:italic; margin:0; }
+  @media (max-width:420px) { ul { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Time Series</h1>
+  <p class="lead">Notes and interactive models, built while learning.</p>
+
+  <h2>Interactive models</h2>
+  <ul>
+    <li><a class="model" href="interactive-models/ar1.html">AR(1)<span>Autoregressive, order 1</span></a></li>
+    <li><a class="model" href="interactive-models/ar2.html">AR(2)<span>Autoregressive, order 2</span></a></li>
+    <li><a class="model" href="interactive-models/ma1.html">MA(1)<span>Moving average, order 1</span></a></li>
+    <li><a class="model" href="interactive-models/ma2.html">MA(2)<span>Moving average, order 2</span></a></li>
+  </ul>
+
+  <h2>More sections</h2>
+  <p class="soon">Coming as I learn them.</p>
+</main>
+</body>
+</html>
